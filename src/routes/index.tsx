@@ -51,14 +51,21 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
+const BRAND = "#1f7a4d";
+const BRAND_DARK = "#0f4d31";
+const BRAND_LIGHT = "#4fc27f";
+const WARN = "#e08b1e";
+
 const DONUT_COLORS = [
-  "var(--brand-dark)",
-  "var(--brand)",
-  "var(--brand-light)",
-  "oklch(0.85 0.09 155)",
-  "oklch(0.9 0.05 155)",
-  "oklch(0.7 0.05 190)",
-  "oklch(0.8 0.06 130)",
+  BRAND_DARK,
+  "#186b44",
+  BRAND,
+  "#2f9a62",
+  BRAND_LIGHT,
+  "#7fd6a2",
+  "#a9e6c1",
+  "#cdf0dc",
+  "#5bb8a6",
 ];
 
 function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -317,14 +324,14 @@ function Dashboard() {
                     />
                     <ReferenceLine
                       x={contrib.overall}
-                      stroke="var(--brand-dark)"
+                      stroke={BRAND_DARK}
                       strokeDasharray="6 6"
                     />
                     <Bar dataKey="value" radius={[0, 8, 8, 0]} animationDuration={600}>
                       {contrib.items.map((d) => (
                         <Cell
                           key={d.item}
-                          fill={d.value >= contrib.overall ? "var(--brand)" : "var(--warn)"}
+                          fill={d.value >= contrib.overall ? BRAND : WARN}
                         />
                       ))}
                     </Bar>
