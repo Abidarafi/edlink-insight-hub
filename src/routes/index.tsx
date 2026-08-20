@@ -196,7 +196,7 @@ function Dashboard() {
       <header className="bg-gradient-brand text-brand-foreground">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-6 py-6">
           <img
-            src={itplnLogo.url}
+            src={itplnLogo}
             alt="Logo Institut Teknologi PLN"
             className="h-12 w-auto rounded-md bg-white/95 p-1.5 sm:h-14"
           />
@@ -213,7 +213,7 @@ function Dashboard() {
             </p>
           </div>
           <img
-            src={edlinkLogo.url}
+            src={edlinkLogo}
             alt="Logo EdLink"
             className="h-12 w-auto rounded-md bg-white/95 p-1.5 sm:h-14"
           />
