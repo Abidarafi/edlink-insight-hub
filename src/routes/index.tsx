@@ -12,8 +12,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import itplnLogo from "@/assets/logo-itpln.png.asset.json";
-import edlinkLogo from "@/assets/logo-edlink.png.asset.json";
+import itplnLogo from "../assets/logo-itpln.png";
+import edlinkLogo from "../assets/logo-edlink.png";
 import {
   Select,
   SelectContent,
