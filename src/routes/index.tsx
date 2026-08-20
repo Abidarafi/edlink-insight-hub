@@ -1,24 +1,372 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  Cell,
+  Pie,
+  PieChart,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import itplnLogo from "@/assets/logo-itpln.png.asset.json";
+import edlinkLogo from "@/assets/logo-edlink.png.asset.json";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  angkatanOptions,
+  distribution,
+  filterData,
+  genderOptions,
+  itemContributions,
+  summary,
+  totalResponden,
+} from "@/lib/sus";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Analisis Kemudahan Penggunaan EdLink | IT PLN" },
+      {
+        name: "description",
+        content:
+          "Dashboard analisis kemudahan penggunaan aplikasi EdLink dengan metode System Usability Scale (SUS) pada 100 mahasiswa Institut Teknologi PLN.",
+      },
+      { property: "og:title", content: "Analisis Kemudahan Penggunaan EdLink | IT PLN" },
+      {
+        property: "og:description",
+        content:
+          "Hasil pengukuran SUS aplikasi EdLink: skor rata-rata, distribusi interpretasi, dan area yang perlu diperbaiki.",
+      },
+    ],
+  }),
+  component: Dashboard,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+const DONUT_COLORS = [
+  "var(--brand-dark)",
+  "var(--brand)",
+  "var(--brand-light)",
+  "oklch(0.85 0.09 155)",
+  "oklch(0.9 0.05 155)",
+  "oklch(0.7 0.05 190)",
+  "oklch(0.8 0.06 130)",
+];
+
+function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-2xl border border-border bg-card p-6 shadow-card ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+function ScoreCard({
+  value,
+  label,
+  highlight = false,
+}: {
+  value: number;
+  label: string;
+  highlight?: boolean;
+}) {
   return (
     <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
+      className={`rounded-2xl border p-6 shadow-card transition-all duration-500 ${
+        highlight
+          ? "border-transparent bg-gradient-brand text-brand-foreground"
+          : "border-border bg-card text-foreground"
+      }`}
     >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+      <div className="text-4xl font-bold tabular-nums transition-all duration-500">
+        {value.toFixed(1)}
+      </div>
+      <div
+        className={`mt-1 text-sm font-medium ${highlight ? "opacity-90" : "text-muted-foreground"}`}
+      >
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function DonutCard({
+  title,
+  data,
+}: {
+  title: string;
+  data: { name: string; value: number; percent: number }[];
+}) {
+  return (
+    <Card>
+      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      <div className="mt-2 flex flex-col items-center gap-4 sm:flex-row">
+        <div className="h-44 w-full sm:w-40">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="value"
+                nameKey="name"
+                innerRadius="58%"
+                outerRadius="88%"
+                paddingAngle={2}
+                stroke="none"
+                animationDuration={600}
+              >
+                {data.map((d, i) => (
+                  <Cell key={d.name} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={{
+                  borderRadius: 12,
+                  border: "1px solid var(--border)",
+                  background: "var(--card)",
+                  fontSize: 12,
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <ul className="w-full space-y-2">
+          {data.map((d, i) => (
+            <li key={d.name} className="flex items-center gap-2 text-xs">
+              <span
+                className="h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ background: DONUT_COLORS[i % DONUT_COLORS.length] }}
+              />
+              <span className="flex-1 truncate text-foreground">{d.name}</span>
+              <span className="font-semibold tabular-nums text-muted-foreground">
+                {d.value} · {d.percent}%
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </Card>
+  );
+}
+
+function Dashboard() {
+  const [angkatan, setAngkatan] = useState("all");
+  const [jenisKelamin, setJenisKelamin] = useState("all");
+
+  const rows = useMemo(() => filterData({ angkatan, jenisKelamin }), [angkatan, jenisKelamin]);
+  const stats = useMemo(() => summary(rows), [rows]);
+  const acceptability = useMemo(
+    () => distribution(rows, "Acceptability", ["Acceptable", "Marginal", "Not Acceptable"]),
+    [rows],
+  );
+  const grade = useMemo(
+    () => distribution(rows, "GradeScale", ["A+", "A", "A-", "B+", "B", "B-", "C", "D", "F"]),
+    [rows],
+  );
+  const adjective = useMemo(
+    () =>
+      distribution(rows, "AdjectiveRating", [
+        "Best Imaginable",
+        "Excellent",
+        "Good",
+        "OK",
+        "Poor",
+        "Worst Imaginable",
+      ]),
+    [rows],
+  );
+  const contrib = useMemo(() => itemContributions(rows), [rows]);
+
+  return (
+    <div className="min-h-screen bg-background font-sans">
+      <header className="bg-gradient-brand text-brand-foreground">
+        <div className="mx-auto flex max-w-7xl items-center gap-4 px-6 py-6">
+          <img
+            src={itplnLogo.url}
+            alt="Logo Institut Teknologi PLN"
+            className="h-12 w-auto rounded-md bg-white/95 p-1.5 sm:h-14"
+          />
+          <div className="flex-1 text-center">
+            <h1 className="text-lg font-bold leading-tight sm:text-2xl">
+              Sistem Informasi Analisis Kemudahan Penggunaan Aplikasi EdLink
+            </h1>
+            <p className="mt-1 text-sm font-medium opacity-95 sm:text-base">
+              Institut Teknologi PLN
+            </p>
+            <p className="mt-2 text-xs opacity-85 sm:text-sm">
+              Berdasarkan Metode System Usability Scale (SUS) — 100 Responden Mahasiswa Institut
+              Teknologi PLN
+            </p>
+          </div>
+          <img
+            src={edlinkLogo.url}
+            alt="Logo EdLink"
+            className="h-12 w-auto rounded-md bg-white/95 p-1.5 sm:h-14"
+          />
+        </div>
+      </header>
+
+      <div className="sticky top-0 z-20 border-b border-border bg-card/90 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-6 py-3">
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-muted-foreground">Angkatan</label>
+            <Select value={angkatan} onValueChange={setAngkatan}>
+              <SelectTrigger className="h-9 w-36 rounded-xl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Angkatan</SelectItem>
+                {angkatanOptions.map((a) => (
+                  <SelectItem key={a} value={a}>
+                    {a}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-muted-foreground">Jenis Kelamin</label>
+            <Select value={jenisKelamin} onValueChange={setJenisKelamin}>
+              <SelectTrigger className="h-9 w-40 rounded-xl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua</SelectItem>
+                {genderOptions.map((g) => (
+                  <SelectItem key={g} value={g}>
+                    {g}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="ml-auto rounded-full bg-brand/10 px-4 py-1.5 text-sm font-semibold text-brand-dark transition-all duration-300">
+            {rows.length} dari {totalResponden} responden
+          </div>
+        </div>
+      </div>
+
+      <main className="mx-auto max-w-7xl space-y-10 px-6 py-8">
+        <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <ScoreCard value={stats.avg} label="Rata-rata Skor SUS" highlight />
+          <ScoreCard value={stats.median} label="Median Skor" />
+          <ScoreCard value={stats.max} label="Skor Tertinggi" />
+          <ScoreCard value={stats.min} label="Skor Terendah" />
+        </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-foreground">Distribusi Kategori Interpretasi</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Sebaran responden pada tiga skala interpretasi hasil SUS
+          </p>
+          <div className="mt-5 grid gap-5 lg:grid-cols-3">
+            <DonutCard title="Acceptability" data={acceptability} />
+            <DonutCard title="Grade Scale" data={grade} />
+            <DonutCard title="Adjective Rating" data={adjective} />
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-foreground">
+            Rata-Rata Skor Kontribusi per Item Pernyataan SUS (Skala 0–4)
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Garis putus-putus menandai rata-rata keseluruhan ({contrib.overall.toFixed(2)})
+          </p>
+          <div className="mt-5 grid gap-5 lg:grid-cols-3">
+            <Card className="lg:col-span-2">
+              <div className="h-[420px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={contrib.items}
+                    layout="vertical"
+                    margin={{ left: 8, right: 32, top: 8, bottom: 8 }}
+                  >
+                    <XAxis
+                      type="number"
+                      domain={[0, 4]}
+                      tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="item"
+                      width={40}
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fontSize: 12, fill: "var(--foreground)" }}
+                    />
+                    <Tooltip
+                      cursor={{ fill: "var(--muted)" }}
+                      formatter={(v: number) => [v.toFixed(2), "Skor kontribusi"]}
+                      labelFormatter={(l: string) =>
+                        `${l} — ${contrib.items.find((i) => i.item === l)?.label ?? ""}`
+                      }
+                      contentStyle={{
+                        borderRadius: 12,
+                        border: "1px solid var(--border)",
+                        background: "var(--card)",
+                        fontSize: 12,
+                      }}
+                    />
+                    <ReferenceLine
+                      x={contrib.overall}
+                      stroke="var(--brand-dark)"
+                      strokeDasharray="6 6"
+                    />
+                    <Bar dataKey="value" radius={[0, 8, 8, 0]} animationDuration={600}>
+                      {contrib.items.map((d) => (
+                        <Cell
+                          key={d.item}
+                          fill={d.value >= contrib.overall ? "var(--brand)" : "var(--warn)"}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+
+            <Card>
+              <h3 className="text-base font-semibold text-foreground">Area Perlu Perbaikan</h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Item dengan skor kontribusi di bawah rata-rata
+              </p>
+              <ul className="mt-4 space-y-3">
+                {contrib.belowAverage.map((d) => (
+                  <li
+                    key={d.item}
+                    className="flex items-start gap-3 rounded-xl bg-warn-soft p-3 transition-all duration-300"
+                  >
+                    <span className="rounded-lg bg-warn px-2 py-1 text-xs font-bold text-brand-foreground">
+                      {d.item}
+                    </span>
+                    <span className="flex-1 text-xs leading-snug text-foreground">{d.label}</span>
+                    <span className="text-sm font-bold tabular-nums text-warn">
+                      {d.value.toFixed(2)}
+                    </span>
+                  </li>
+                ))}
+                {contrib.belowAverage.length === 0 && (
+                  <li className="text-xs text-muted-foreground">
+                    Tidak ada item di bawah rata-rata pada filter ini.
+                  </li>
+                )}
+              </ul>
+            </Card>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
+        Institut Teknologi PLN — Analisis System Usability Scale aplikasi EdLink
+      </footer>
     </div>
   );
 }
