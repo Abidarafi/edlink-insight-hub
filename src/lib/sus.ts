@@ -71,7 +71,7 @@ export function itemContributions(rows: Response[]) {
     const avg = rows.length
       ? rows.reduce((sum, r) => sum + (r[key] as number), 0) / rows.length
       : 0;
-    return { item: `P${i + 1}`, label: ITEM_LABELS[i + 1], value: round(avg, 2) };
+    return { item: `P${i + 1}`, label: ITEM_LABELS[i + 1] ?? "", value: round(avg, 2) };
   });
   const overall = round(items.reduce((a, b) => a + b.value, 0) / items.length, 2);
   return {
