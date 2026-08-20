@@ -33,11 +33,12 @@ export function summary(rows: Response[]) {
   if (rows.length === 0) return { avg: 0, median: 0, max: 0, min: 0 };
   const scores = rows.map((r) => r.SkorSUS).sort((a, b) => a - b);
   const mid = Math.floor(scores.length / 2);
+  const at = (i: number) => scores[i] ?? 0;
   return {
     avg: round(scores.reduce((a, b) => a + b, 0) / scores.length),
-    median: round(scores.length % 2 ? scores[mid] : (scores[mid - 1] + scores[mid]) / 2),
-    max: round(scores[scores.length - 1]),
-    min: round(scores[0]),
+    median: round(scores.length % 2 ? at(mid) : (at(mid - 1) + at(mid)) / 2),
+    max: round(at(scores.length - 1)),
+    min: round(at(0)),
   };
 }
 
