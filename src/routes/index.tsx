@@ -602,7 +602,67 @@ function Dashboard() {
             </Card>
           </div>
         </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-foreground">Karakteristik Responden</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Profil responden berdasarkan filter aktif
+          </p>
+          <div className="mt-5 grid gap-5 lg:grid-cols-3">
+            <div className="rounded-2xl border border-transparent bg-gradient-brand p-6 text-brand-foreground shadow-card">
+              <div className="text-5xl font-bold tabular-nums">{rows.length}</div>
+              <div className="mt-1 text-sm font-medium opacity-90">Total Responden</div>
+            </div>
+            <DonutCard title="Jenis Kelamin Responden" data={genderDist} />
+            <Card>
+              <h3 className="text-sm font-semibold text-foreground">Distribusi Angkatan Responden</h3>
+              <div className="mt-2 h-44 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={angkatanDist} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                      width={28}
+                    />
+                    <Tooltip
+                      cursor={{ fill: "var(--muted)" }}
+                      formatter={(v: number) => [v, "Responden"]}
+                      contentStyle={{
+                        borderRadius: 12,
+                        border: "1px solid var(--border)",
+                        background: "var(--card)",
+                        fontSize: 12,
+                      }}
+                    />
+                    <Bar dataKey="value" fill={BRAND} radius={[8, 8, 0, 0]} animationDuration={600}>
+                      <LabelList
+                        dataKey="value"
+                        position="top"
+                        style={{ fontSize: 11, fill: BRAND_DARK, fontWeight: 600 }}
+                      />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-foreground">Tabulasi Data Responden</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Skor Likert mentah (P1–P10), skor kontribusi, dan skor SUS tiap responden
+          </p>
+          <div className="mt-5">
+            <ResponsesTable rows={rows} />
+          </div>
+        </section>
       </main>
+
 
       <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
         Institut Teknologi PLN — Analisis System Usability Scale aplikasi EdLink
