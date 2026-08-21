@@ -350,6 +350,16 @@ function Dashboard() {
     [rows],
   );
   const contrib = useMemo(() => itemContributions(rows), [rows]);
+  const overallInterpret = useMemo(() => interpret(stats.avg), [stats.avg]);
+  const susDist = useMemo(() => scoreDistribution(rows), [rows]);
+  const genderDist = useMemo(() => distribution(rows, "JenisKelamin"), [rows]);
+  const angkatanDist = useMemo(
+    () =>
+      distribution(rows, "Angkatan", ["2022", "2023", "2024", "2025"]).sort(
+        (a, b) => Number(a.name) - Number(b.name),
+      ),
+    [rows],
+  );
 
   return (
     <div className="min-h-screen bg-background font-sans">
