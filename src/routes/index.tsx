@@ -168,6 +168,168 @@ function DonutCard({
   );
 }
 
+const TONE: Record<string, string> = {
+  dark: BRAND_DARK,
+  mid: BRAND,
+  light: BRAND_LIGHT,
+  warn: WARN,
+};
+
+function InterpretCard({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-6 text-center shadow-card">
+      <div className="text-3xl font-bold text-brand transition-all duration-500">{value}</div>
+      <div className="mt-1 text-sm font-medium text-muted-foreground">{label}</div>
+    </div>
+  );
+}
+
+function ScalePositionChart({ avg }: { avg: number }) {
+  return (
+    <Card>
+      <div className="space-y-6">
+        {SCALES.map((scale) => (
+          <div key={scale.title}>
+            <div className="mb-1.5 text-xs font-semibold text-muted-foreground">{scale.title}</div>
+            <div className="relative flex h-11 w-full overflow-hidden rounded-lg">
+              {scale.segments.map((s) => (
+                <div
+                  key={s.name}
+                  title={`${s.name} (${s.from}–${s.to})`}
+                  className="flex items-center justify-center overflow-hidden px-1 text-[10px] font-semibold text-brand-foreground sm:text-xs"
+                  style={{ width: `${s.to - s.from}%`, background: TONE[s.tone] }}
+                >
+                  <span className="truncate">{s.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+        <div className="relative h-5">
+          {[0, 25, 50, 75, 100].map((t) => (
+            <span
+              key={t}
+              className="absolute -translate-x-1/2 text-[10px] text-muted-foreground"
+              style={{ left: `${t}%` }}
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div className="pointer-events-none relative">
+        <div />
+      </div>
+      <div className="relative -mt-[calc(100%)] h-0" />
+    </Card>
+  );
+}
+
+function ScaleWithMarker({ avg }: { avg: number }) {
+  return (
+    <div className="relative">
+      <ScalePositionChart avg={avg} />
+      <div
+        className="pointer-events-none absolute top-[3.2rem] bottom-14 border-l-2 border-dashed"
+        style={{ left: `calc(1.5rem + ${avg}% - ${(avg / 100) * 3}rem)`, borderColor: BRAND_DARK }}
+      >
+        <span className="absolute -top-7 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand-dark px-2.5 py-1 text-[10px] font-semibold text-brand-foreground">
+          Rata-rata Skor ({avg.toFixed(1).replace(".", ",")})
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function ResponsesTable({ rows }: { rows: import("@/data/responses").Response[] }) {
+  const [page, setPage] = useState(0);
+  const perPage = 10;
+  const pages = Math.max(1, Math.ceil(rows.length / perPage));
+  const current = Math.min(page, pages - 1);
+  const slice = rows.slice(current * perPage, current * perPage + perPage);
+  const start = rows.length === 0 ? 0 : current * perPage + 1;
+  const end = Math.min(rows.length, (current + 1) * perPage);
+
+  return (
+    <Card className="overflow-hidden p-0">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[900px] text-xs">
+          <thead>
+            <tr className="bg-gradient-brand text-brand-foreground">
+              {["No", "NIM", "Jenis Kelamin", "Angkatan"].map((h) => (
+                <th key={h} className="whitespace-nowrap px-3 py-3 text-left font-semibold">
+                  {h}
+                </th>
+              ))}
+              {Array.from({ length: 10 }, (_, i) => (
+                <th key={i} className="px-2 py-3 text-center font-semibold">
+                  P{i + 1}
+                </th>
+              ))}
+              <th className="px-3 py-3 text-center font-semibold">Skor Kontribusi</th>
+              <th className="px-3 py-3 text-center font-semibold">Skor SUS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {slice.map((r, i) => (
+              <tr key={r.Nim} className={i % 2 === 1 ? "bg-muted/40" : ""}>
+                <td className="px-3 py-2 text-muted-foreground">{start + i}</td>
+                <td className="px-3 py-2 font-medium text-foreground">{r.Nim}</td>
+                <td className="whitespace-nowrap px-3 py-2 text-foreground">{r.JenisKelamin}</td>
+                <td className="px-3 py-2 text-foreground">{r.Angkatan}</td>
+                {Array.from({ length: 10 }, (_, k) => (
+                  <td key={k} className="px-2 py-2 text-center tabular-nums text-foreground">
+                    {r[`P${k + 1}` as keyof typeof r] as number}
+                  </td>
+                ))}
+                <td className="px-3 py-2 text-center font-semibold tabular-nums text-foreground">
+                  {r.SkorKontribusi}
+                </td>
+                <td className="px-3 py-2 text-center font-bold tabular-nums text-brand">
+                  {r.SkorSUS}
+                </td>
+              </tr>
+            ))}
+            {slice.length === 0 && (
+              <tr>
+                <td colSpan={16} className="px-3 py-6 text-center text-muted-foreground">
+                  Tidak ada data pada filter ini.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3">
+        <span className="text-xs text-muted-foreground">
+          {start}-{end} dari {rows.length}
+        </span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setPage(Math.max(0, current - 1))}
+            disabled={current === 0}
+            className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground disabled:opacity-40"
+          >
+            Sebelumnya
+          </button>
+          <span className="text-xs text-muted-foreground">
+            Halaman {current + 1} / {pages}
+          </span>
+          <button
+            type="button"
+            onClick={() => setPage(Math.min(pages - 1, current + 1))}
+            disabled={current >= pages - 1}
+            className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground disabled:opacity-40"
+          >
+            Berikutnya
+          </button>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 function Dashboard() {
   const [angkatan, setAngkatan] = useState("all");
   const [jenisKelamin, setJenisKelamin] = useState("all");
