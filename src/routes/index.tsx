@@ -438,6 +438,22 @@ function Dashboard() {
           <ScoreCard value={stats.min} label="Skor Terendah" />
         </section>
 
+        <section className="grid gap-4 sm:grid-cols-3">
+          <InterpretCard value={overallInterpret.acceptability} label="Acceptability Range" />
+          <InterpretCard value={overallInterpret.grade} label="Grade Scale" />
+          <InterpretCard value={overallInterpret.adjective} label="Adjective Rating" />
+        </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-foreground">Posisi Skor pada Skala Interpretasi</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Posisi rata-rata skor SUS pada rentang tiga skala interpretasi
+          </p>
+          <div className="mt-5">
+            <ScalePositionChart avg={stats.avg} />
+          </div>
+        </section>
+
         <section>
           <h2 className="text-xl font-bold text-foreground">Distribusi Kategori Interpretasi</h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -449,6 +465,53 @@ function Dashboard() {
             <DonutCard title="Adjective Rating" data={adjective} />
           </div>
         </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-foreground">Distribusi Skor SUS</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Frekuensi responden pada tiap nilai skor SUS
+          </p>
+          <Card className="mt-5">
+            <div className="h-[340px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={susDist} margin={{ top: 24, right: 8, left: 0, bottom: 8 }}>
+                  <XAxis
+                    dataKey="score"
+                    tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                    interval={0}
+                    angle={-45}
+                    textAnchor="end"
+                    height={50}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "var(--muted)" }}
+                    formatter={(v: number) => [v, "Responden"]}
+                    labelFormatter={(l: string) => `Skor SUS ${l}`}
+                    contentStyle={{
+                      borderRadius: 12,
+                      border: "1px solid var(--border)",
+                      background: "var(--card)",
+                      fontSize: 12,
+                    }}
+                  />
+                  <Bar dataKey="jumlah" fill={BRAND} radius={[8, 8, 0, 0]} animationDuration={600}>
+                    <LabelList
+                      dataKey="jumlah"
+                      position="top"
+                      style={{ fontSize: 11, fill: BRAND_DARK, fontWeight: 600 }}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </section>
+
+
 
         <section>
           <h2 className="text-xl font-bold text-foreground">
