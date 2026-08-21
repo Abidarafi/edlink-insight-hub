@@ -4,6 +4,7 @@ import {
   Bar,
   BarChart,
   Cell,
+  LabelList,
   Pie,
   PieChart,
   ReferenceLine,
@@ -22,14 +23,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  SCALES,
   angkatanOptions,
   distribution,
   filterData,
   genderOptions,
+  interpret,
   itemContributions,
+  scoreDistribution,
   summary,
   totalResponden,
 } from "@/lib/sus";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -163,6 +168,161 @@ function DonutCard({
   );
 }
 
+const TONE: Record<string, string> = {
+  dark: BRAND_DARK,
+  mid: BRAND,
+  light: BRAND_LIGHT,
+  warn: WARN,
+};
+
+function InterpretCard({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-6 text-center shadow-card">
+      <div className="text-3xl font-bold text-brand transition-all duration-500">{value}</div>
+      <div className="mt-1 text-sm font-medium text-muted-foreground">{label}</div>
+    </div>
+  );
+}
+
+function ScalePositionChart({ avg }: { avg: number }) {
+  return (
+    <Card>
+      <div className="relative pt-8">
+        <div className="space-y-5">
+          {SCALES.map((scale) => (
+            <div key={scale.title}>
+              <div className="mb-1.5 text-xs font-semibold text-muted-foreground">
+                {scale.title}
+              </div>
+              <div className="flex h-11 w-full overflow-hidden rounded-lg">
+                {scale.segments.map((s) => (
+                  <div
+                    key={s.name}
+                    title={`${s.name} (${s.from}–${s.to})`}
+                    className="flex items-center justify-center overflow-hidden px-1 text-[10px] font-semibold text-brand-foreground sm:text-xs"
+                    style={{ width: `${s.to - s.from}%`, background: TONE[s.tone] }}
+                  >
+                    <span className="truncate">{s.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+          <div className="relative h-4">
+            {[0, 25, 50, 75, 100].map((t) => (
+              <span
+                key={t}
+                className="absolute -translate-x-1/2 text-[10px] text-muted-foreground"
+                style={{ left: `${t}%` }}
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div
+          className="pointer-events-none absolute top-8 bottom-6 border-l-2 border-dashed transition-all duration-500"
+          style={{ left: `${avg}%`, borderColor: BRAND_DARK }}
+        >
+          <span className="absolute -top-7 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand-dark px-2.5 py-1 text-[10px] font-semibold text-brand-foreground">
+            Rata-rata Skor ({avg.toFixed(1).replace(".", ",")})
+          </span>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+
+function ResponsesTable({ rows }: { rows: import("@/data/responses").Response[] }) {
+  const [page, setPage] = useState(0);
+  const perPage = 10;
+  const pages = Math.max(1, Math.ceil(rows.length / perPage));
+  const current = Math.min(page, pages - 1);
+  const slice = rows.slice(current * perPage, current * perPage + perPage);
+  const start = rows.length === 0 ? 0 : current * perPage + 1;
+  const end = Math.min(rows.length, (current + 1) * perPage);
+
+  return (
+    <Card className="overflow-hidden p-0">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[900px] text-xs">
+          <thead>
+            <tr className="bg-gradient-brand text-brand-foreground">
+              {["No", "NIM", "Jenis Kelamin", "Angkatan"].map((h) => (
+                <th key={h} className="whitespace-nowrap px-3 py-3 text-left font-semibold">
+                  {h}
+                </th>
+              ))}
+              {Array.from({ length: 10 }, (_, i) => (
+                <th key={i} className="px-2 py-3 text-center font-semibold">
+                  P{i + 1}
+                </th>
+              ))}
+              <th className="px-3 py-3 text-center font-semibold">Skor Kontribusi</th>
+              <th className="px-3 py-3 text-center font-semibold">Skor SUS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {slice.map((r, i) => (
+              <tr key={r.Nim} className={i % 2 === 1 ? "bg-muted/40" : ""}>
+                <td className="px-3 py-2 text-muted-foreground">{start + i}</td>
+                <td className="px-3 py-2 font-medium text-foreground">{r.Nim}</td>
+                <td className="whitespace-nowrap px-3 py-2 text-foreground">{r.JenisKelamin}</td>
+                <td className="px-3 py-2 text-foreground">{r.Angkatan}</td>
+                {Array.from({ length: 10 }, (_, k) => (
+                  <td key={k} className="px-2 py-2 text-center tabular-nums text-foreground">
+                    {r[`P${k + 1}` as keyof typeof r] as number}
+                  </td>
+                ))}
+                <td className="px-3 py-2 text-center font-semibold tabular-nums text-foreground">
+                  {r.SkorKontribusi}
+                </td>
+                <td className="px-3 py-2 text-center font-bold tabular-nums text-brand">
+                  {r.SkorSUS}
+                </td>
+              </tr>
+            ))}
+            {slice.length === 0 && (
+              <tr>
+                <td colSpan={16} className="px-3 py-6 text-center text-muted-foreground">
+                  Tidak ada data pada filter ini.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3">
+        <span className="text-xs text-muted-foreground">
+          {start}-{end} dari {rows.length}
+        </span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setPage(Math.max(0, current - 1))}
+            disabled={current === 0}
+            className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground disabled:opacity-40"
+          >
+            Sebelumnya
+          </button>
+          <span className="text-xs text-muted-foreground">
+            Halaman {current + 1} / {pages}
+          </span>
+          <button
+            type="button"
+            onClick={() => setPage(Math.min(pages - 1, current + 1))}
+            disabled={current >= pages - 1}
+            className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground disabled:opacity-40"
+          >
+            Berikutnya
+          </button>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 function Dashboard() {
   const [angkatan, setAngkatan] = useState("all");
   const [jenisKelamin, setJenisKelamin] = useState("all");
@@ -190,6 +350,16 @@ function Dashboard() {
     [rows],
   );
   const contrib = useMemo(() => itemContributions(rows), [rows]);
+  const overallInterpret = useMemo(() => interpret(stats.avg), [stats.avg]);
+  const susDist = useMemo(() => scoreDistribution(rows), [rows]);
+  const genderDist = useMemo(() => distribution(rows, "JenisKelamin"), [rows]);
+  const angkatanDist = useMemo(
+    () =>
+      distribution(rows, "Angkatan", ["2022", "2023", "2024", "2025"]).sort(
+        (a, b) => Number(a.name) - Number(b.name),
+      ),
+    [rows],
+  );
 
   return (
     <div className="min-h-screen bg-background font-sans">
@@ -268,6 +438,22 @@ function Dashboard() {
           <ScoreCard value={stats.min} label="Skor Terendah" />
         </section>
 
+        <section className="grid gap-4 sm:grid-cols-3">
+          <InterpretCard value={overallInterpret.acceptability} label="Acceptability Range" />
+          <InterpretCard value={overallInterpret.grade} label="Grade Scale" />
+          <InterpretCard value={overallInterpret.adjective} label="Adjective Rating" />
+        </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-foreground">Posisi Skor pada Skala Interpretasi</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Posisi rata-rata skor SUS pada rentang tiga skala interpretasi
+          </p>
+          <div className="mt-5">
+            <ScalePositionChart avg={stats.avg} />
+          </div>
+        </section>
+
         <section>
           <h2 className="text-xl font-bold text-foreground">Distribusi Kategori Interpretasi</h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -279,6 +465,53 @@ function Dashboard() {
             <DonutCard title="Adjective Rating" data={adjective} />
           </div>
         </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-foreground">Distribusi Skor SUS</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Frekuensi responden pada tiap nilai skor SUS
+          </p>
+          <Card className="mt-5">
+            <div className="h-[340px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={susDist} margin={{ top: 24, right: 8, left: 0, bottom: 8 }}>
+                  <XAxis
+                    dataKey="score"
+                    tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                    interval={0}
+                    angle={-45}
+                    textAnchor="end"
+                    height={50}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "var(--muted)" }}
+                    formatter={(v: number) => [v, "Responden"]}
+                    labelFormatter={(l: string) => `Skor SUS ${l}`}
+                    contentStyle={{
+                      borderRadius: 12,
+                      border: "1px solid var(--border)",
+                      background: "var(--card)",
+                      fontSize: 12,
+                    }}
+                  />
+                  <Bar dataKey="jumlah" fill={BRAND} radius={[8, 8, 0, 0]} animationDuration={600}>
+                    <LabelList
+                      dataKey="jumlah"
+                      position="top"
+                      style={{ fontSize: 11, fill: BRAND_DARK, fontWeight: 600 }}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </section>
+
+
 
         <section>
           <h2 className="text-xl font-bold text-foreground">
@@ -369,7 +602,67 @@ function Dashboard() {
             </Card>
           </div>
         </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-foreground">Karakteristik Responden</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Profil responden berdasarkan filter aktif
+          </p>
+          <div className="mt-5 grid gap-5 lg:grid-cols-3">
+            <div className="rounded-2xl border border-transparent bg-gradient-brand p-6 text-brand-foreground shadow-card">
+              <div className="text-5xl font-bold tabular-nums">{rows.length}</div>
+              <div className="mt-1 text-sm font-medium opacity-90">Total Responden</div>
+            </div>
+            <DonutCard title="Jenis Kelamin Responden" data={genderDist} />
+            <Card>
+              <h3 className="text-sm font-semibold text-foreground">Distribusi Angkatan Responden</h3>
+              <div className="mt-2 h-44 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={angkatanDist} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                      width={28}
+                    />
+                    <Tooltip
+                      cursor={{ fill: "var(--muted)" }}
+                      formatter={(v: number) => [v, "Responden"]}
+                      contentStyle={{
+                        borderRadius: 12,
+                        border: "1px solid var(--border)",
+                        background: "var(--card)",
+                        fontSize: 12,
+                      }}
+                    />
+                    <Bar dataKey="value" fill={BRAND} radius={[8, 8, 0, 0]} animationDuration={600}>
+                      <LabelList
+                        dataKey="value"
+                        position="top"
+                        style={{ fontSize: 11, fill: BRAND_DARK, fontWeight: 600 }}
+                      />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-foreground">Tabulasi Data Responden</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Skor Likert mentah (P1–P10), skor kontribusi, dan skor SUS tiap responden
+          </p>
+          <div className="mt-5">
+            <ResponsesTable rows={rows} />
+          </div>
+        </section>
       </main>
+
 
       <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
         Institut Teknologi PLN — Analisis System Usability Scale aplikasi EdLink
