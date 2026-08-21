@@ -187,59 +187,52 @@ function InterpretCard({ value, label }: { value: string; label: string }) {
 function ScalePositionChart({ avg }: { avg: number }) {
   return (
     <Card>
-      <div className="space-y-6">
-        {SCALES.map((scale) => (
-          <div key={scale.title}>
-            <div className="mb-1.5 text-xs font-semibold text-muted-foreground">{scale.title}</div>
-            <div className="relative flex h-11 w-full overflow-hidden rounded-lg">
-              {scale.segments.map((s) => (
-                <div
-                  key={s.name}
-                  title={`${s.name} (${s.from}–${s.to})`}
-                  className="flex items-center justify-center overflow-hidden px-1 text-[10px] font-semibold text-brand-foreground sm:text-xs"
-                  style={{ width: `${s.to - s.from}%`, background: TONE[s.tone] }}
-                >
-                  <span className="truncate">{s.name}</span>
-                </div>
-              ))}
+      <div className="relative pt-8">
+        <div className="space-y-5">
+          {SCALES.map((scale) => (
+            <div key={scale.title}>
+              <div className="mb-1.5 text-xs font-semibold text-muted-foreground">
+                {scale.title}
+              </div>
+              <div className="flex h-11 w-full overflow-hidden rounded-lg">
+                {scale.segments.map((s) => (
+                  <div
+                    key={s.name}
+                    title={`${s.name} (${s.from}–${s.to})`}
+                    className="flex items-center justify-center overflow-hidden px-1 text-[10px] font-semibold text-brand-foreground sm:text-xs"
+                    style={{ width: `${s.to - s.from}%`, background: TONE[s.tone] }}
+                  >
+                    <span className="truncate">{s.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-        <div className="relative h-5">
-          {[0, 25, 50, 75, 100].map((t) => (
-            <span
-              key={t}
-              className="absolute -translate-x-1/2 text-[10px] text-muted-foreground"
-              style={{ left: `${t}%` }}
-            >
-              {t}
-            </span>
           ))}
+          <div className="relative h-4">
+            {[0, 25, 50, 75, 100].map((t) => (
+              <span
+                key={t}
+                className="absolute -translate-x-1/2 text-[10px] text-muted-foreground"
+                style={{ left: `${t}%` }}
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div
+          className="pointer-events-none absolute top-8 bottom-6 border-l-2 border-dashed transition-all duration-500"
+          style={{ left: `${avg}%`, borderColor: BRAND_DARK }}
+        >
+          <span className="absolute -top-7 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand-dark px-2.5 py-1 text-[10px] font-semibold text-brand-foreground">
+            Rata-rata Skor ({avg.toFixed(1).replace(".", ",")})
+          </span>
         </div>
       </div>
-      <div className="pointer-events-none relative">
-        <div />
-      </div>
-      <div className="relative -mt-[calc(100%)] h-0" />
     </Card>
   );
 }
 
-function ScaleWithMarker({ avg }: { avg: number }) {
-  return (
-    <div className="relative">
-      <ScalePositionChart avg={avg} />
-      <div
-        className="pointer-events-none absolute top-[3.2rem] bottom-14 border-l-2 border-dashed"
-        style={{ left: `calc(1.5rem + ${avg}% - ${(avg / 100) * 3}rem)`, borderColor: BRAND_DARK }}
-      >
-        <span className="absolute -top-7 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand-dark px-2.5 py-1 text-[10px] font-semibold text-brand-foreground">
-          Rata-rata Skor ({avg.toFixed(1).replace(".", ",")})
-        </span>
-      </div>
-    </div>
-  );
-}
 
 function ResponsesTable({ rows }: { rows: import("@/data/responses").Response[] }) {
   const [page, setPage] = useState(0);
