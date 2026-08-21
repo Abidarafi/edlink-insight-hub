@@ -80,3 +80,59 @@ export function itemContributions(rows: Response[]) {
     belowAverage: items.filter((i) => i.value < overall).sort((a, b) => b.value - a.value),
   };
 }
+
+export type Segment = { name: string; from: number; to: number; tone: "dark" | "mid" | "light" | "warn" };
+
+export const SCALES: { title: string; segments: Segment[] }[] = [
+  {
+    title: "Acceptability Range",
+    segments: [
+      { name: "Not Acceptable", from: 0, to: 51, tone: "warn" },
+      { name: "Marginal", from: 51, to: 71, tone: "light" },
+      { name: "Acceptable", from: 71, to: 100, tone: "dark" },
+    ],
+  },
+  {
+    title: "Adjective Rating",
+    segments: [
+      { name: "Worst Imaginable", from: 0, to: 25, tone: "warn" },
+      { name: "Poor", from: 25, to: 51.7, tone: "warn" },
+      { name: "OK", from: 51.7, to: 71.1, tone: "light" },
+      { name: "Good", from: 71.1, to: 80.7, tone: "mid" },
+      { name: "Excellent", from: 80.7, to: 90.9, tone: "dark" },
+      { name: "Best Imaginable", from: 90.9, to: 100, tone: "dark" },
+    ],
+  },
+  {
+    title: "Grade Scale",
+    segments: [
+      { name: "F", from: 0, to: 51.7, tone: "warn" },
+      { name: "D", from: 51.7, to: 62.6, tone: "warn" },
+      { name: "C", from: 62.6, to: 72.5, tone: "light" },
+      { name: "B", from: 72.5, to: 78.8, tone: "mid" },
+      { name: "A", from: 78.8, to: 100, tone: "dark" },
+    ],
+  },
+];
+
+function categorize(score: number, segments: Segment[]) {
+  const found = segments.find((s) => score >= s.from && score < s.to);
+  return (found ?? segments[segments.length - 1])!.name;
+}
+
+export function interpret(score: number) {
+  const at = (i: number) => SCALES[i]!.segments;
+  return {
+    acceptability: categorize(score, at(0)),
+    adjective: categorize(score, at(1)),
+    grade: categorize(score, at(2)),
+  };
+}
+
+export function scoreDistribution(rows: Response[]) {
+  const counts = new Map<number, number>();
+  rows.forEach((r) => counts.set(r.SkorSUS, (counts.get(r.SkorSUS) ?? 0) + 1));
+  return Array.from(counts.entries())
+    .sort((a, b) => a[0] - b[0])
+    .map(([score, jumlah]) => ({ score: String(score), jumlah }));
+}
