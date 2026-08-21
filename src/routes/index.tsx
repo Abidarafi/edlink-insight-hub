@@ -4,6 +4,7 @@ import {
   Bar,
   BarChart,
   Cell,
+  LabelList,
   Pie,
   PieChart,
   ReferenceLine,
@@ -22,14 +23,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  SCALES,
   angkatanOptions,
   distribution,
   filterData,
   genderOptions,
+  interpret,
   itemContributions,
+  scoreDistribution,
   summary,
   totalResponden,
 } from "@/lib/sus";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
