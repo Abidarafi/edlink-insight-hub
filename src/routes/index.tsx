@@ -399,20 +399,27 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-background font-sans">
       <header className="bg-gradient-brand text-brand-foreground">
-        <div className="mx-auto flex max-w-7xl items-center gap-4 px-6 py-6">
-          <img
-            src={itplnLogo}
-            alt="Logo Institut Teknologi PLN"
-            className="h-12 w-auto rounded-md bg-white/95 p-1.5 sm:h-14"
-          />
-          <div className="flex-1 text-center">
-            <h1 className="text-lg font-bold leading-tight sm:text-2xl">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 py-4 sm:px-6 sm:py-6 md:flex-row md:gap-4">
+          <div className="flex w-full items-center justify-between gap-3 md:w-auto">
+            <img
+              src={itplnLogo}
+              alt="Logo Institut Teknologi PLN"
+              className="h-9 w-auto rounded-md bg-white/95 p-1 sm:h-12 md:h-14 md:p-1.5"
+            />
+            <img
+              src={edlinkLogo}
+              alt="Logo EdLink"
+              className="h-9 w-auto rounded-md bg-white/95 p-1 sm:h-12 md:hidden"
+            />
+          </div>
+          <div className="min-w-0 flex-1 text-center">
+            <h1 className="text-balance text-base font-bold leading-tight sm:text-xl md:text-2xl">
               Sistem Informasi Analisis Kemudahan Penggunaan Aplikasi EdLink
             </h1>
-            <p className="mt-1 text-sm font-medium opacity-95 sm:text-base">
+            <p className="mt-1 text-xs font-medium opacity-95 sm:text-sm md:text-base">
               Institut Teknologi PLN
             </p>
-            <p className="mt-2 text-xs opacity-85 sm:text-sm">
+            <p className="mt-2 text-[11px] opacity-85 sm:text-xs md:text-sm">
               Berdasarkan Metode System Usability Scale (SUS) — 100 Responden Mahasiswa Institut
               Teknologi PLN
             </p>
@@ -420,17 +427,17 @@ function Dashboard() {
           <img
             src={edlinkLogo}
             alt="Logo EdLink"
-            className="h-12 w-auto rounded-md bg-white/95 p-1.5 sm:h-14"
+            className="hidden h-14 w-auto rounded-md bg-white/95 p-1.5 md:block"
           />
         </div>
       </header>
 
       <div className="sticky top-0 z-20 border-b border-border bg-card/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-6 py-3">
-          <div className="flex items-center gap-2">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 md:flex-row md:flex-wrap md:items-center">
+          <div className="flex w-full flex-col gap-1 md:w-auto md:flex-row md:items-center md:gap-2">
             <label className="text-xs font-medium text-muted-foreground">Angkatan</label>
             <Select value={angkatan} onValueChange={setAngkatan}>
-              <SelectTrigger className="h-9 w-36 rounded-xl">
+              <SelectTrigger className="h-11 w-full rounded-xl md:h-9 md:w-36">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -443,10 +450,10 @@ function Dashboard() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-col gap-1 md:w-auto md:flex-row md:items-center md:gap-2">
             <label className="text-xs font-medium text-muted-foreground">Jenis Kelamin</label>
             <Select value={jenisKelamin} onValueChange={setJenisKelamin}>
-              <SelectTrigger className="h-9 w-40 rounded-xl">
+              <SelectTrigger className="h-11 w-full rounded-xl md:h-9 md:w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -459,14 +466,15 @@ function Dashboard() {
               </SelectContent>
             </Select>
           </div>
-          <div className="ml-auto rounded-full bg-brand/10 px-4 py-1.5 text-sm font-semibold text-brand-dark transition-all duration-300">
+          <div className="mx-auto rounded-full bg-brand/10 px-4 py-1.5 text-center text-xs font-semibold text-brand-dark transition-all duration-300 sm:text-sm md:mx-0 md:ml-auto">
             {rows.length} dari {totalResponden} responden
           </div>
         </div>
       </div>
 
-      <main className="mx-auto max-w-7xl space-y-10 px-6 py-8">
-        <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <main className="mx-auto max-w-7xl space-y-7 px-4 py-6 sm:px-6 sm:py-8 md:space-y-10">
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+
           <ScoreCard value={stats.avg} label="Rata-rata Skor SUS" highlight />
           <ScoreCard value={stats.median} label="Median Skor" />
           <ScoreCard value={stats.max} label="Skor Tertinggi" />
