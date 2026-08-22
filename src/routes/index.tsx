@@ -75,7 +75,9 @@ const DONUT_COLORS = [
 
 function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`rounded-2xl border border-border bg-card p-6 shadow-card ${className}`}>
+    <div
+      className={`rounded-2xl border border-border bg-card p-4 shadow-card sm:p-6 ${className}`}
+    >
       {children}
     </div>
   );
@@ -92,23 +94,24 @@ function ScoreCard({
 }) {
   return (
     <div
-      className={`rounded-2xl border p-6 shadow-card transition-all duration-500 ${
+      className={`rounded-2xl border p-4 shadow-card transition-all duration-500 sm:p-6 ${
         highlight
           ? "border-transparent bg-gradient-brand text-brand-foreground"
           : "border-border bg-card text-foreground"
       }`}
     >
-      <div className="text-4xl font-bold tabular-nums transition-all duration-500">
+      <div className="text-3xl font-bold tabular-nums transition-all duration-500 sm:text-4xl">
         {value.toFixed(1)}
       </div>
       <div
-        className={`mt-1 text-sm font-medium ${highlight ? "opacity-90" : "text-muted-foreground"}`}
+        className={`mt-1 text-xs font-medium sm:text-sm ${highlight ? "opacity-90" : "text-muted-foreground"}`}
       >
         {label}
       </div>
     </div>
   );
 }
+
 
 function DonutCard({
   title,
@@ -120,8 +123,9 @@ function DonutCard({
   return (
     <Card>
       <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-      <div className="mt-2 flex flex-col items-center gap-4 sm:flex-row">
-        <div className="h-44 w-full sm:w-40">
+      <div className="mt-2 flex flex-col items-center gap-4 lg:flex-row">
+        <div className="h-40 w-full sm:h-44 lg:w-40">
+
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -177,61 +181,66 @@ const TONE: Record<string, string> = {
 
 function InterpretCard({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 text-center shadow-card">
-      <div className="text-3xl font-bold text-brand transition-all duration-500">{value}</div>
-      <div className="mt-1 text-sm font-medium text-muted-foreground">{label}</div>
+    <div className="rounded-2xl border border-border bg-card p-4 text-center shadow-card sm:p-6">
+      <div className="text-2xl font-bold text-brand transition-all duration-500 sm:text-3xl">
+        {value}
+      </div>
+      <div className="mt-1 text-xs font-medium text-muted-foreground sm:text-sm">{label}</div>
     </div>
   );
 }
 
 function ScalePositionChart({ avg }: { avg: number }) {
   return (
-    <Card>
-      <div className="relative pt-8">
-        <div className="space-y-5">
-          {SCALES.map((scale) => (
-            <div key={scale.title}>
-              <div className="mb-1.5 text-xs font-semibold text-muted-foreground">
-                {scale.title}
+    <Card className="overflow-hidden">
+      <div className="-mx-1 overflow-x-auto pb-1">
+        <div className="relative min-w-[560px] px-1 pt-8">
+          <div className="space-y-5">
+            {SCALES.map((scale) => (
+              <div key={scale.title}>
+                <div className="mb-1.5 text-xs font-semibold text-muted-foreground">
+                  {scale.title}
+                </div>
+                <div className="flex h-11 w-full overflow-hidden rounded-lg">
+                  {scale.segments.map((s) => (
+                    <div
+                      key={s.name}
+                      title={`${s.name} (${s.from}–${s.to})`}
+                      className="flex items-center justify-center overflow-hidden px-1 text-[10px] font-semibold text-brand-foreground sm:text-xs"
+                      style={{ width: `${s.to - s.from}%`, background: TONE[s.tone] }}
+                    >
+                      <span className="truncate">{s.name}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="flex h-11 w-full overflow-hidden rounded-lg">
-                {scale.segments.map((s) => (
-                  <div
-                    key={s.name}
-                    title={`${s.name} (${s.from}–${s.to})`}
-                    className="flex items-center justify-center overflow-hidden px-1 text-[10px] font-semibold text-brand-foreground sm:text-xs"
-                    style={{ width: `${s.to - s.from}%`, background: TONE[s.tone] }}
-                  >
-                    <span className="truncate">{s.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-          <div className="relative h-4">
-            {[0, 25, 50, 75, 100].map((t) => (
-              <span
-                key={t}
-                className="absolute -translate-x-1/2 text-[10px] text-muted-foreground"
-                style={{ left: `${t}%` }}
-              >
-                {t}
-              </span>
             ))}
+            <div className="relative h-4">
+              {[0, 25, 50, 75, 100].map((t) => (
+                <span
+                  key={t}
+                  className="absolute -translate-x-1/2 text-[10px] text-muted-foreground"
+                  style={{ left: `${t}%` }}
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
-        <div
-          className="pointer-events-none absolute top-8 bottom-6 border-l-2 border-dashed transition-all duration-500"
-          style={{ left: `${avg}%`, borderColor: BRAND_DARK }}
-        >
-          <span className="absolute -top-7 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand-dark px-2.5 py-1 text-[10px] font-semibold text-brand-foreground">
-            Rata-rata Skor ({avg.toFixed(1).replace(".", ",")})
-          </span>
+          <div
+            className="pointer-events-none absolute top-8 bottom-6 border-l-2 border-dashed transition-all duration-500"
+            style={{ left: `${avg}%`, borderColor: BRAND_DARK }}
+          >
+            <span className="absolute -top-7 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand-dark px-2.5 py-1 text-[10px] font-semibold text-brand-foreground">
+              Rata-rata Skor ({avg.toFixed(1).replace(".", ",")})
+            </span>
+          </div>
         </div>
       </div>
     </Card>
   );
 }
+
 
 
 function ResponsesTable({ rows }: { rows: import("@/data/responses").Response[] }) {
@@ -244,45 +253,70 @@ function ResponsesTable({ rows }: { rows: import("@/data/responses").Response[] 
   const end = Math.min(rows.length, (current + 1) * perPage);
 
   return (
-    <Card className="overflow-hidden p-0">
+    <Card className="overflow-hidden !p-0">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[900px] text-xs">
+        <table className="w-full min-w-[900px] text-[11px] sm:text-xs">
           <thead>
             <tr className="bg-gradient-brand text-brand-foreground">
-              {["No", "NIM", "Jenis Kelamin", "Angkatan"].map((h) => (
-                <th key={h} className="whitespace-nowrap px-3 py-3 text-left font-semibold">
+              <th className="sticky left-0 z-10 whitespace-nowrap bg-brand-dark px-2 py-3 text-left font-semibold sm:px-3">
+                No
+              </th>
+              <th className="sticky left-[44px] z-10 whitespace-nowrap bg-brand-dark px-2 py-3 text-left font-semibold sm:px-3">
+                NIM
+              </th>
+              {["Jenis Kelamin", "Angkatan"].map((h) => (
+                <th
+                  key={h}
+                  className="whitespace-nowrap px-2 py-3 text-left font-semibold sm:px-3"
+                >
                   {h}
                 </th>
               ))}
               {Array.from({ length: 10 }, (_, i) => (
-                <th key={i} className="px-2 py-3 text-center font-semibold">
+                <th key={i} className="px-1.5 py-3 text-center font-semibold sm:px-2">
                   P{i + 1}
                 </th>
               ))}
-              <th className="px-3 py-3 text-center font-semibold">Skor Kontribusi</th>
-              <th className="px-3 py-3 text-center font-semibold">Skor SUS</th>
+              <th className="px-2 py-3 text-center font-semibold sm:px-3">Skor Kontribusi</th>
+              <th className="px-2 py-3 text-center font-semibold sm:px-3">Skor SUS</th>
             </tr>
           </thead>
           <tbody>
-            {slice.map((r, i) => (
-              <tr key={r.Nim} className={i % 2 === 1 ? "bg-muted/40" : ""}>
-                <td className="px-3 py-2 text-muted-foreground">{start + i}</td>
-                <td className="px-3 py-2 font-medium text-foreground">{r.Nim}</td>
-                <td className="whitespace-nowrap px-3 py-2 text-foreground">{r.JenisKelamin}</td>
-                <td className="px-3 py-2 text-foreground">{r.Angkatan}</td>
-                {Array.from({ length: 10 }, (_, k) => (
-                  <td key={k} className="px-2 py-2 text-center tabular-nums text-foreground">
-                    {r[`P${k + 1}` as keyof typeof r] as number}
+            {slice.map((r, i) => {
+              const stickyBg = i % 2 === 1 ? "bg-[oklch(0.968_0.007_247.896)]" : "bg-card";
+              return (
+                <tr key={r.Nim} className={i % 2 === 1 ? "bg-muted/40" : ""}>
+                  <td
+                    className={`sticky left-0 z-10 px-2 py-1.5 text-muted-foreground sm:px-3 sm:py-2 ${stickyBg}`}
+                  >
+                    {start + i}
                   </td>
-                ))}
-                <td className="px-3 py-2 text-center font-semibold tabular-nums text-foreground">
-                  {r.SkorKontribusi}
-                </td>
-                <td className="px-3 py-2 text-center font-bold tabular-nums text-brand">
-                  {r.SkorSUS}
-                </td>
-              </tr>
-            ))}
+                  <td
+                    className={`sticky left-[44px] z-10 whitespace-nowrap px-2 py-1.5 font-medium text-foreground sm:px-3 sm:py-2 ${stickyBg}`}
+                  >
+                    {r.Nim}
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-1.5 text-foreground sm:px-3 sm:py-2">
+                    {r.JenisKelamin}
+                  </td>
+                  <td className="px-2 py-1.5 text-foreground sm:px-3 sm:py-2">{r.Angkatan}</td>
+                  {Array.from({ length: 10 }, (_, k) => (
+                    <td
+                      key={k}
+                      className="px-1.5 py-1.5 text-center tabular-nums text-foreground sm:px-2 sm:py-2"
+                    >
+                      {r[`P${k + 1}` as keyof typeof r] as number}
+                    </td>
+                  ))}
+                  <td className="px-2 py-1.5 text-center font-semibold tabular-nums text-foreground sm:px-3 sm:py-2">
+                    {r.SkorKontribusi}
+                  </td>
+                  <td className="px-2 py-1.5 text-center font-bold tabular-nums text-brand sm:px-3 sm:py-2">
+                    {r.SkorSUS}
+                  </td>
+                </tr>
+              );
+            })}
             {slice.length === 0 && (
               <tr>
                 <td colSpan={16} className="px-3 py-6 text-center text-muted-foreground">
@@ -293,7 +327,7 @@ function ResponsesTable({ rows }: { rows: import("@/data/responses").Response[] 
           </tbody>
         </table>
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3">
+      <div className="flex flex-col items-center gap-2 border-t border-border px-4 py-3 sm:flex-row sm:justify-between sm:gap-3">
         <span className="text-xs text-muted-foreground">
           {start}-{end} dari {rows.length}
         </span>
@@ -302,18 +336,18 @@ function ResponsesTable({ rows }: { rows: import("@/data/responses").Response[] 
             type="button"
             onClick={() => setPage(Math.max(0, current - 1))}
             disabled={current === 0}
-            className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground disabled:opacity-40"
+            className="min-h-11 rounded-lg border border-border px-4 text-xs font-medium text-foreground disabled:opacity-40"
           >
             Sebelumnya
           </button>
-          <span className="text-xs text-muted-foreground">
-            Halaman {current + 1} / {pages}
+          <span className="px-1 text-xs text-muted-foreground">
+            {current + 1} / {pages}
           </span>
           <button
             type="button"
             onClick={() => setPage(Math.min(pages - 1, current + 1))}
             disabled={current >= pages - 1}
-            className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground disabled:opacity-40"
+            className="min-h-11 rounded-lg border border-border px-4 text-xs font-medium text-foreground disabled:opacity-40"
           >
             Berikutnya
           </button>
@@ -322,6 +356,7 @@ function ResponsesTable({ rows }: { rows: import("@/data/responses").Response[] 
     </Card>
   );
 }
+
 
 function Dashboard() {
   const [angkatan, setAngkatan] = useState("all");
