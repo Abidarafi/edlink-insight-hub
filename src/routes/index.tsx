@@ -488,21 +488,21 @@ function Dashboard() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-foreground">Posisi Skor pada Skala Interpretasi</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h2 className="text-lg font-bold text-foreground sm:text-xl">Posisi Skor pada Skala Interpretasi</h2>
+          <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
             Posisi rata-rata skor SUS pada rentang tiga skala interpretasi
           </p>
-          <div className="mt-5">
+          <div className="mt-4 sm:mt-5">
             <ScalePositionChart avg={stats.avg} />
           </div>
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-foreground">Distribusi Kategori Interpretasi</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h2 className="text-lg font-bold text-foreground sm:text-xl">Distribusi Kategori Interpretasi</h2>
+          <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
             Sebaran responden pada tiga skala interpretasi hasil SUS
           </p>
-          <div className="mt-5 grid gap-5 lg:grid-cols-3">
+          <div className="mt-4 grid gap-4 sm:mt-5 sm:gap-5 lg:grid-cols-3">
             <DonutCard title="Acceptability" data={acceptability} />
             <DonutCard title="Grade Scale" data={grade} />
             <DonutCard title="Adjective Rating" data={adjective} />
@@ -510,11 +510,11 @@ function Dashboard() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-foreground">Distribusi Skor SUS</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h2 className="text-lg font-bold text-foreground sm:text-xl">Distribusi Skor SUS</h2>
+          <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
             Frekuensi responden pada tiap nilai skor SUS
           </p>
-          <Card className="mt-5">
+          <Card className="mt-4 sm:mt-5">
             <div className="h-[340px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={susDist} margin={{ top: 24, right: 8, left: 0, bottom: 8 }}>
@@ -557,13 +557,13 @@ function Dashboard() {
 
 
         <section>
-          <h2 className="text-xl font-bold text-foreground">
+          <h2 className="text-lg font-bold text-foreground sm:text-xl">
             Rata-Rata Skor Kontribusi per Item Pernyataan SUS (Skala 0–4)
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
             Garis putus-putus menandai rata-rata keseluruhan ({contrib.overall.toFixed(2)})
           </p>
-          <div className="mt-5 grid gap-5 lg:grid-cols-3">
+          <div className="mt-4 grid gap-4 sm:mt-5 sm:gap-5 lg:grid-cols-3">
             <Card className="lg:col-span-2">
               <div className="h-[420px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -647,11 +647,11 @@ function Dashboard() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-foreground">Karakteristik Responden</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h2 className="text-lg font-bold text-foreground sm:text-xl">Karakteristik Responden</h2>
+          <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
             Profil responden berdasarkan filter aktif
           </p>
-          <div className="mt-5 grid gap-5 lg:grid-cols-3">
+          <div className="mt-4 grid gap-4 sm:mt-5 sm:gap-5 lg:grid-cols-3">
             <div className="rounded-2xl border border-transparent bg-gradient-brand p-6 text-brand-foreground shadow-card">
               <div className="text-5xl font-bold tabular-nums">{rows.length}</div>
               <div className="mt-1 text-sm font-medium opacity-90">Total Responden</div>
@@ -696,11 +696,11 @@ function Dashboard() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-foreground">Tabulasi Data Responden</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h2 className="text-lg font-bold text-foreground sm:text-xl">Tabulasi Data Responden</h2>
+          <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
             Skor Likert mentah (P1–P10), skor kontribusi, dan skor SUS tiap responden
           </p>
-          <div className="mt-5">
+          <div className="mt-4 sm:mt-5">
             <ResponsesTable rows={rows} />
           </div>
         </section>
