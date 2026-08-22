@@ -399,7 +399,7 @@ function Dashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-background font-sans">
+    <div className="min-h-screen overflow-x-hidden bg-background font-sans">
       <header className="bg-gradient-brand text-brand-foreground">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 py-4 sm:px-6 sm:py-6 md:flex-row md:gap-4">
           <div className="flex w-full items-center justify-between gap-3 md:w-auto">
