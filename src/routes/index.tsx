@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Bar,
   BarChart,
@@ -359,6 +360,7 @@ function ResponsesTable({ rows }: { rows: import("@/data/responses").Response[] 
 
 
 function Dashboard() {
+  const isMobile = useIsMobile();
   const [angkatan, setAngkatan] = useState("all");
   const [jenisKelamin, setJenisKelamin] = useState("all");
 
