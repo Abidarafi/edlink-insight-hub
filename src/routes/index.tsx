@@ -569,7 +569,7 @@ function Dashboard() {
           </p>
           <div className="mt-4 grid gap-4 sm:mt-5 sm:gap-5 lg:grid-cols-3">
             <Card className="lg:col-span-2">
-              <div className="h-[420px] w-full">
+              <div className="h-[340px] w-full sm:h-[420px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={contrib.items}
@@ -579,15 +579,15 @@ function Dashboard() {
                     <XAxis
                       type="number"
                       domain={[0, 4]}
-                      tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                      tick={{ fontSize: isMobile ? 10 : 12, fill: "var(--muted-foreground)" }}
                     />
                     <YAxis
                       type="category"
                       dataKey="item"
-                      width={40}
+                      width={isMobile ? 32 : 40}
                       tickLine={false}
                       axisLine={false}
-                      tick={{ fontSize: 12, fill: "var(--foreground)" }}
+                      tick={{ fontSize: isMobile ? 10 : 12, fill: "var(--foreground)" }}
                     />
                     <Tooltip
                       cursor={{ fill: "var(--muted)" }}
@@ -656,24 +656,28 @@ function Dashboard() {
             Profil responden berdasarkan filter aktif
           </p>
           <div className="mt-4 grid gap-4 sm:mt-5 sm:gap-5 lg:grid-cols-3">
-            <div className="rounded-2xl border border-transparent bg-gradient-brand p-6 text-brand-foreground shadow-card">
-              <div className="text-5xl font-bold tabular-nums">{rows.length}</div>
-              <div className="mt-1 text-sm font-medium opacity-90">Total Responden</div>
+            <div className="rounded-2xl border border-transparent bg-gradient-brand p-4 text-brand-foreground shadow-card sm:p-6">
+              <div className="text-4xl font-bold tabular-nums sm:text-5xl">{rows.length}</div>
+              <div className="mt-1 text-xs font-medium opacity-90 sm:text-sm">Total Responden</div>
             </div>
             <DonutCard title="Jenis Kelamin Responden" data={genderDist} />
             <Card>
               <h3 className="text-sm font-semibold text-foreground">Distribusi Angkatan Responden</h3>
-              <div className="mt-2 h-44 w-full">
+              <div className="mt-2 h-48 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={angkatanDist} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
                     <XAxis
                       dataKey="name"
-                      tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                      interval={0}
+                      angle={isMobile ? -35 : 0}
+                      textAnchor={isMobile ? "end" : "middle"}
+                      height={isMobile ? 40 : 30}
+                      tick={{ fontSize: isMobile ? 10 : 12, fill: "var(--muted-foreground)" }}
                     />
                     <YAxis
                       allowDecimals={false}
-                      tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                      width={28}
+                      tick={{ fontSize: isMobile ? 10 : 11, fill: "var(--muted-foreground)" }}
+                      width={isMobile ? 24 : 28}
                     />
                     <Tooltip
                       cursor={{ fill: "var(--muted)" }}
