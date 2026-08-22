@@ -481,7 +481,7 @@ function Dashboard() {
           <ScoreCard value={stats.min} label="Skor Terendah" />
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-3">
+        <section className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-3">
           <InterpretCard value={overallInterpret.acceptability} label="Acceptability Range" />
           <InterpretCard value={overallInterpret.grade} label="Grade Scale" />
           <InterpretCard value={overallInterpret.adjective} label="Adjective Rating" />
@@ -515,21 +515,23 @@ function Dashboard() {
             Frekuensi responden pada tiap nilai skor SUS
           </p>
           <Card className="mt-4 sm:mt-5">
-            <div className="h-[340px] w-full">
+            <div className="h-[280px] w-full sm:h-[340px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={susDist} margin={{ top: 24, right: 8, left: 0, bottom: 8 }}>
                   <XAxis
                     dataKey="score"
-                    tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                    interval={0}
+                    tick={{ fontSize: isMobile ? 9 : 11, fill: "var(--muted-foreground)" }}
+                    interval={isMobile ? "preserveStartEnd" : 0}
                     angle={-45}
                     textAnchor="end"
                     height={50}
                   />
                   <YAxis
                     allowDecimals={false}
-                    tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                    width={isMobile ? 24 : 30}
+                    tick={{ fontSize: isMobile ? 10 : 12, fill: "var(--muted-foreground)" }}
                   />
+
                   <Tooltip
                     cursor={{ fill: "var(--muted)" }}
                     formatter={(v: number) => [v, "Responden"]}
